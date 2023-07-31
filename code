@@ -1,0 +1,44 @@
+#include <SPI.h>
+#include <SD.h>
+
+const int AOUT_PIN = A0; // Arduino pin that connects to AOUT pin of the moisture sensor
+const int chipSelect = 10; // Arduino pin connected to SD card's chip select pin
+
+File dataFile; // File object to handle writing data to the SD card
+
+void setup() {
+  Serial.begin(9600);
+
+  // Initialize the SD card
+  if (!SD.begin(chipSelect)) {
+    Serial.println("SD card initialization failed!");
+    while (1); // Loop forever if SD card initialization fails
+  }
+
+  dataFile = SD.open("moisture_data.txt", FILE_WRITE); // Open the data file for writing
+
+  if (dataFile) {
+    Serial.println("File opened successfully.");
+    dataFile.println("Moisture:");
+    dataFile.close(); // Close the file
+  } else {
+    Serial.println("Error opening file.");
+  }
+}
+
+void loop() {
+  int value = analogRead(AOUT_PIN); // read the analog value from the sensor
+
+  Serial.print("Humidity in the room: ");
+  Serial.println(value);
+
+  // Append the data to the SD card file
+  dataFile = SD.open("moisture_data.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.println(value);
+    dataFile.close(); // Close the file
+  } else {
+  }
+
+  delay(500);
+}
